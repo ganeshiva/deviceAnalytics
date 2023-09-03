@@ -1,0 +1,10 @@
+devices:
+    device1:
+        host: "192.168.1.1"
+        management: "snmp"
+        config: "snmp.yaml"
+    
+    device2:
+        host: "127.0.0.1"
+        management: "snmp"
+        config: "snmp.yaml"

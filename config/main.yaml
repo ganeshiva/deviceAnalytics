@@ -1,1 +1,9 @@
+####################################################################
+## Main Configuration YAML, that serves as index for other config
+####################################################################
+
 mainConfig:
+    deviceConfig: device.yaml
+    snmpConfig: snmp.yaml
+    netconfConfig: netconf.yaml
+    ipfixConfig: ipfix.yaml

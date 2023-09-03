@@ -1,4 +1,18 @@
+# SNMP CommunityData
 community: "public"
-host: "127.0.0.1"
+# SNMP service port number
 port: 161
-oid: ".1.3.6.1.2.1"
+# SNMP OID to perform walk
+oid: ".1.3"
+# SNMP timeout
+timeout: 2.0
+# SNMP Retries
+retries: 3
+# nonRepeaters (int) – One MIB variable is requested in response for the first nonRepeaters MIB variables in request.
+nonRepeaters: 0
+# maxRepetitions (int) – maxRepetitions MIB variables are requested in response for each of the remaining MIB variables in the request (e.g. excluding nonRepeaters). Remote SNMP engine may choose lesser value than requested.
+maxRepetitions: 50
+# maxCalls - Stop iteration once this generator instance processed maxCalls responses
+maxCalls: 5
+# getNext / bulkWalk
+walkMode: "getNext"

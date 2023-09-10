@@ -2,17 +2,41 @@
 community: "public"
 # SNMP service port number
 port: 161
-# SNMP OID to perform walk
-oid: ".1.3"
+
 # SNMP timeout
 timeout: 2.0
 # SNMP Retries
-retries: 3
+retries: 5
 # nonRepeaters (int) – One MIB variable is requested in response for the first nonRepeaters MIB variables in request.
 nonRepeaters: 0
 # maxRepetitions (int) – maxRepetitions MIB variables are requested in response for each of the remaining MIB variables in the request (e.g. excluding nonRepeaters). Remote SNMP engine may choose lesser value than requested.
-maxRepetitions: 50
+maxRepetitions: 30
 # maxCalls - Stop iteration once this generator instance processed maxCalls responses
 maxCalls: 5
 # getNext / bulkWalk
 walkMode: "getNext"
+
+# SNMP OID to perform walk
+oid: 
+    walkOid:
+        - ".1.3"
+    systemMetric:
+        sysDescr : "1.3.6.1.2.1.1.1.0"
+        sysPhysicalAddress : "1.3.6.1.2.1.2.2.1.6.160000"
+        sysFirmwareVersion : "1.3.6.1.4.1.16972.1.3.0"
+    sysUpTime : "1.3.6.1.2.1.1.3.0"
+    interfaceName: "1.3.6.1.2.1.2.2.1.2"
+    interfaceMetric:
+        ifOperStatus : "1.3.6.1.2.1.2.2.1.8"
+        ifLastChange : "1.3.6.1.2.1.2.2.1.9"
+        ifInOctets : "1.3.6.1.2.1.2.2.1.10"
+        ifInUcastPkts : "1.3.6.1.2.1.2.2.1.11"
+        ifInNUcastPkts : "1.3.6.1.2.1.2.2.1.12"
+        ifInDiscards : "1.3.6.1.2.1.2.2.1.13"
+        ifInErrors : "1.3.6.1.2.1.2.2.1.14"
+        ifInUnknownProtos : "1.3.6.1.2.1.2.2.1.15"
+        ifOutOctets : "1.3.6.1.2.1.2.2.1.17"
+        ifOutUcastPkts : "1.3.6.1.2.1.2.2.1.17"
+        ifOutNUcastPkts : "1.3.6.1.2.1.2.2.1.18"
+        ifOutDiscards : "1.3.6.1.2.1.2.2.1.19"
+        ifOutErrors : "1.3.6.1.2.1.2.2.1.20"

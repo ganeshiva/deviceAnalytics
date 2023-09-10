@@ -6,7 +6,7 @@ title="deviceAnalytics/src/crawler"
 summary="SNMP Crawler code"
 author=Ganeshiva
 created=20230820
-updated=20230903
+updated=20230910
 cmdLine="python3 <thisScriptName> <configFile>"
 dependancy="refer requirements.txt"
 repository="refer repository.txt"
@@ -24,25 +24,30 @@ from pysnmp.hlapi import (
     bulkCmd,
     nextCmd,
 )
-from src.lib.yamlLib import readYamlConfig
+
+from src.normalizer.snmpTypeMapper import convertType
 from src.lib.printDecorator import *
 
 import os
 import sys
 
 
-def readSnmpConfig(configFile="config" + os.sep + "snmp.yaml"):
-    return readYamlConfig(configFile)
+def getOidObjectsList(snmpConfig):
+    oid_Objects = [
+        ObjectType(ObjectIdentity(oid)) for oid in snmpConfig["oid"]["walkOid"]
+    ]
+    return oid_Objects
 
 
 def extractValue(varBindTable):
     """
-    extract Value from the varBindTable
+    Extract oid, type and value from the varBindTable
     """
     oidArray = varBindTable[0][0]
     valueArray = varBindTable[0][1]
     oid = oidArray.prettyPrint()
-    valueDict = None
+    valueDict = {}
+
     try:
         value = valueArray.prettyPrint()
         valueType = valueArray.prettyPrintType().split(" -> ")[1]
@@ -50,38 +55,18 @@ def extractValue(varBindTable):
         printError("Unable to Process: " + str(varBindTable) + ", Exception: " + str(e))
         return None
 
-    normalizedValue = normaliseValue(value, valueType)
-    valueDict = {"oid": oid, "type": valueType, "value": normalizedValue}
+    normalizedValue = convertType(value, valueType)
+    valueDict[oid] = {"type": valueType, "value": normalizedValue}
+
     return valueDict
-
-
-def normaliseValue(value, valueType):
-    """
-    format and normalise 'value' based on its 'Type'
-    """
-    try:
-        if value == "":
-            value = None
-        elif valueType == "OctetString":
-            value = value.encode("utf-8")
-        return value
-    except Exception as e:
-        printError(
-            "Unable to Process: "
-            + str(value)
-            + " , "
-            + str(valueType)
-            + ", Exception: "
-            + str(e)
-        )
-        return value
 
 
 def SNMP_GetNext(hostname, snmpConfig):
     """
     Perform snmpwalk using getNext on the 'hostname' based on 'snmpConfig'
     """
-    resultList = []
+    responseDict = {}
+
     for errorIndication, errorStatus, errorIndex, varBindTable in nextCmd(
         SnmpEngine(),
         CommunityData(snmpConfig["community"]),
@@ -91,13 +76,13 @@ def SNMP_GetNext(hostname, snmpConfig):
             retries=snmpConfig["retries"],
         ),
         ContextData(),
-        ObjectType(ObjectIdentity(snmpConfig["oid"])),
         lookupMib=False,
         lexicographicMode=False,
+        *getOidObjectsList(snmpConfig),
     ):
         if errorIndication:
             printError(errorIndication)
-            # break
+            break
 
         elif errorStatus:
             printError(
@@ -112,15 +97,16 @@ def SNMP_GetNext(hostname, snmpConfig):
 
         else:
             valueDict = extractValue(varBindTable)
-            resultList.append(valueDict)
-    return resultList
+            responseDict = responseDict | valueDict
+    return responseDict
 
 
 def SNMP_BulkWalk(hostname, snmpConfig):
     """
     Perform snmpwalk using getbulk on the 'hostname' based on 'snmpConfig'
     """
-    resultList = []
+    responseDict = {}
+
     for errorIndication, errorStatus, errorIndex, varBindTable in bulkCmd(
         SnmpEngine(),
         CommunityData(snmpConfig["community"]),
@@ -132,14 +118,14 @@ def SNMP_BulkWalk(hostname, snmpConfig):
         ContextData(),
         snmpConfig["nonRepeaters"],
         snmpConfig["maxRepetitions"],
-        ObjectType(ObjectIdentity(snmpConfig["oid"])),
         maxCalls=snmpConfig["maxCalls"],
         lookupMib=False,
         lexicographicMode=False,
+        *getOidObjectsList(snmpConfig),
     ):
         if errorIndication:
             printError(errorIndication)
-            # break
+            break
         elif errorStatus:
             printError(
                 "%s at %s"
@@ -151,19 +137,76 @@ def SNMP_BulkWalk(hostname, snmpConfig):
             break
         else:
             valueDict = extractValue(varBindTable)
-            resultList.append(valueDict)
-    return resultList
+            responseDict = responseDict | valueDict
+    return responseDict
 
 
 def snmpWalk(hostname, snmpConfig):
     """
     perform SNMP WALK based on the 'hostname' based on 'snmpConfig'
+    returns result of the SNMP Walk
     """
-    snmpConfig = readSnmpConfig(snmpConfig)
     walkMode = snmpConfig["walkMode"]
+    response = None
     if walkMode == "getNext":
         response = SNMP_GetNext(hostname, snmpConfig)
-        printInfo("getNext Responsed: {} oids".format(len(response)))
+        printInfo("getNext Responded: {} oids".format(len(response)))
     elif walkMode == "bulkWalk":
         response = SNMP_BulkWalk(hostname, snmpConfig)
-        printInfo("bulkWalk Responsed: {} oids".format(len(response)))
+        printInfo("bulkWalk Responded: {} oids".format(len(response)))
+    return response
+
+
+def deviceSysMetric(oidDict, oidConfig):
+    """
+    Parse the metric response dictionary and extract metric from system level parameters
+    """
+    systemMetric = {}
+    for metricName, oid in oidConfig["systemMetric"].items():
+        systemMetric[metricName] = oidDict[oid]["value"]
+    return systemMetric
+
+
+def deviceSysUptime(oidDict, oidConfig):
+    """
+    Parse the metric response dictionary and extract Sys Uptime from parameters
+    """
+    return oidDict[oidConfig["sysUpTime"]]["value"]
+
+
+def extractIfOidName(oidDict, interfaceNameOid):
+    ifNameOidDict = {}
+    interfaceNameOidPrefix = interfaceNameOid + "."
+    for key, val in oidDict.items():
+        if key.startswith(interfaceNameOidPrefix):
+            ifNameOidDict[key.replace(interfaceNameOidPrefix, "")] = val["value"]
+    return ifNameOidDict
+
+
+def deviceInterfaceMetric(oidDict, oidConfig):
+    """
+    Parse the metric response dictionary and extract metrics from each interface
+    """
+    interfaceMetric = {}
+    ifNameOid = oidConfig["interfaceName"]
+    interfaceNameDict = extractIfOidName(oidDict, ifNameOid)
+    for ifOid, ifName in interfaceNameDict.items():
+        metricDict = {}
+        for ifMetricName, ifMetricOid in oidConfig["interfaceMetric"].items():
+            metricDict[ifMetricName] = oidDict[ifMetricOid + "." + ifOid]["value"]
+        interfaceMetric[ifName] = metricDict
+
+    return interfaceMetric
+
+
+def deviceMetric(oidDict, oidConfig):
+    """
+    Parse the metric response {oidDict} dictionary and extract device metric based on oidConfig
+    """
+    if len(oidDict) != 0:
+        systemMetric = deviceSysMetric(oidDict, oidConfig)
+        systemUptime = deviceSysUptime(oidDict, oidConfig)
+        interfaceMetric = deviceInterfaceMetric(oidDict, oidConfig)
+        return systemMetric, systemUptime, interfaceMetric
+    else:
+        return None, None, None

@@ -15,6 +15,7 @@ license="refer LICENSE"
 """
 
 from src.crawler.snmp import snmpWalk
+from src.crawler.snmp import deviceMetric
 from src.lib.yamlLib import readYamlConfig
 from src.lib.printDecorator import *
 
@@ -38,11 +39,13 @@ def crawlDevice(configFile):
     for device in devices.items():
         deviceKey, deviceParameter = device[0], device[1]
         hostname, management = deviceParameter["host"], deviceParameter["management"]
-        snmpConfig = configDirPath + os.sep + deviceParameter["config"]
+        snmpConfigFile = configDirPath + os.sep + deviceParameter["config"]
+        snmpConfig = readConfig(snmpConfigFile)
         ## SNMP Managed Devices
         if management == "snmp":
-            printInfo("Performing SNMP walk on Host : '{}'".format(hostname))
-            snmpWalk(hostname, snmpConfig)
+            printAlert("Performing SNMP walk on Host : '{}'".format(hostname))
+            snmpWalkResponse = snmpWalk(hostname, snmpConfig)
+            deviceMetric(snmpWalkResponse, snmpConfig["oid"])
 
 
 def main():

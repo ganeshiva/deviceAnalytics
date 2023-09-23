@@ -1,0 +1,9 @@
+####################################################################
+## Storage Configuration YAML
+####################################################################
+
+serverHost: "localhost"
+serverPort: 8428
+postProtocol: "http"
+prometheusUrlPath: "/api/v1/import/prometheus/metrics/job"
+prometheusAppName: "deviceAnalytics"

@@ -1,21 +1,5 @@
-#!/usr/bin/python3
-
-codeHeader = """
-#################################################################
-title="deviceAnalytics/src/lib/yamllib"
-summary="Library code for yaml parsing"
-author=Ganeshiva
-created=20230820
-updated=20230820
-cmdLine="none"
-dependancy="refer requirements.txt"
-repository="refer repository.txt"
-license="refer LICENSE"
-#################################################################
-"""
-
 import yaml
-from src.lib.printDecorator import *
+from src.libCommon.printDecorator import *
 
 
 def readYamlConfig(configFile):

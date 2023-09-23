@@ -7,3 +7,6 @@ mainConfig:
     snmpConfig: snmp.yaml
     netconfConfig: netconf.yaml
     ipfixConfig: ipfix.yaml
+    storeConfig: storage.yaml
+    parallelTask : 2
+    parallelTaskTimeout : 5

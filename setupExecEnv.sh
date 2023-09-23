@@ -1,6 +1,6 @@
 #!/bin/bash
 
-envId="analytics"
+envId=".analytics"
 echo "Setting up Python Virtual Environment: '${envId}'"
 python3 -m venv ${envId}
 echo "Activating Environment: '${envId}'"

@@ -16,36 +16,37 @@ license="refer LICENSE"
 
 from src.crawler.snmp import snmpWalk
 from src.crawler.snmp import deviceMetric
-from src.lib.yamlLib import readYamlConfig
-from src.lib.printDecorator import *
+from src.libCommon.yamlLib import readYamlConfig
+from src.libCommon.printDecorator import *
 
 import os
 
 
-def readConfig(configFile="config" + os.sep + "main.yaml"):
-    return readYamlConfig(configFile)
-
-
-def crawlDevice(configFile):
+def crawlDevice(deviceConfig):
     """
-    Crawles Each Device data based on the input ConfigFile
+    Crawles Device data based on the input deviceParameter
     """
-    configDirPath = os.path.dirname(configFile)
-    configData = readConfig()
-    deviceConfigFile = configDirPath + os.sep + configData["mainConfig"]["deviceConfig"]
-    deviceConfig = readConfig(deviceConfigFile)
-    devices = deviceConfig["devices"]
-
-    for device in devices.items():
-        deviceKey, deviceParameter = device[0], device[1]
+    try:
+        deviceKey, deviceParameter = deviceConfig[0], deviceConfig[1]
         hostname, management = deviceParameter["host"], deviceParameter["management"]
-        snmpConfigFile = configDirPath + os.sep + deviceParameter["config"]
-        snmpConfig = readConfig(snmpConfigFile)
+        snmpConfigFile = deviceParameter["config"]
+        snmpConfig = readYamlConfig(snmpConfigFile)
         ## SNMP Managed Devices
         if management == "snmp":
-            printAlert("Performing SNMP walk on Host : '{}'".format(hostname))
-            snmpWalkResponse = snmpWalk(hostname, snmpConfig)
-            deviceMetric(snmpWalkResponse, snmpConfig["oid"])
+            printInfo("🚶 {}: Performing SNMP Walk".format(deviceKey))
+            snmpWalkResponse, timeElapsed = snmpWalk(hostname, snmpConfig)
+            printInfo(
+                "✅ {}: SNMP Walk responded: {} oids, took {} (s)".format(
+                    deviceKey, len(snmpWalkResponse), timeElapsed
+                )
+            )
+            return deviceMetric(snmpWalkResponse, snmpConfig["oid"])
+
+    except Exception as e:
+        printFailure(
+            "Unable to Crawl Device: " + str(deviceKey) + ", Exception: " + str(e)
+        )
+        return None
 
 
 def main():

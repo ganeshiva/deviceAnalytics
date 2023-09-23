@@ -1,19 +1,3 @@
-#!/usr/bin/python3
-
-codeHeader = """
-#################################################################
-title="deviceAnalytics/src/normalizer/logManager"
-summary="Library code for Log Manager"
-author=Ganeshiva
-created=20230910
-updated=20230910
-cmdLine="none"
-dependancy="refer requirements.txt"
-repository="refer repository.txt"
-license="refer LICENSE"
-#################################################################
-"""
-
 import datetime
 import logging
 import os

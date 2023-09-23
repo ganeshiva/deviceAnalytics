@@ -18,8 +18,8 @@ import sys
 import os
 
 sys.path.append(os.getcwd())
-from src.lib.printDecorator import *
-from src.crawler.crawlerMain import crawlDevice
+from src.libCommon.printDecorator import *
+from src.orchestrator.taskMain import initDataCollection
 
 print
 
@@ -31,5 +31,5 @@ if __name__ == "__main__":
         # Strip \n \r Characters in the Command line
         argument = [str(i).strip("\r\n") for i in argument]
         configFile = argument[1]
-        crawlDevice(configFile)
+        initDataCollection(configFile)
     getPrintStats()

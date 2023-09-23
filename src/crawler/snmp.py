@@ -26,10 +26,12 @@ from pysnmp.hlapi import (
 )
 
 from src.normalizer.snmpTypeMapper import convertType
-from src.lib.printDecorator import *
+from src.libCommon.printDecorator import *
+from datetime import datetime
 
 import os
 import sys
+import time
 
 
 def getOidObjectsList(snmpConfig):
@@ -45,7 +47,7 @@ def extractValue(varBindTable):
     """
     oidArray = varBindTable[0][0]
     valueArray = varBindTable[0][1]
-    oid = oidArray.prettyPrint()
+    oid = str(oidArray.prettyPrint())
     valueDict = {}
 
     try:
@@ -148,13 +150,14 @@ def snmpWalk(hostname, snmpConfig):
     """
     walkMode = snmpConfig["walkMode"]
     response = None
+    startTime = time.time()
     if walkMode == "getNext":
         response = SNMP_GetNext(hostname, snmpConfig)
-        printInfo("getNext Responded: {} oids".format(len(response)))
     elif walkMode == "bulkWalk":
         response = SNMP_BulkWalk(hostname, snmpConfig)
-        printInfo("bulkWalk Responded: {} oids".format(len(response)))
-    return response
+    endTime = time.time()
+    timeElapsed = endTime - startTime
+    return response, timeElapsed
 
 
 def deviceSysMetric(oidDict, oidConfig):
@@ -179,7 +182,7 @@ def extractIfOidName(oidDict, interfaceNameOid):
     interfaceNameOidPrefix = interfaceNameOid + "."
     for key, val in oidDict.items():
         if key.startswith(interfaceNameOidPrefix):
-            ifNameOidDict[key.replace(interfaceNameOidPrefix, "")] = val["value"]
+            ifNameOidDict[key.replace(interfaceNameOidPrefix, "")] = str(val["value"])
     return ifNameOidDict
 
 
@@ -204,9 +207,11 @@ def deviceMetric(oidDict, oidConfig):
     Parse the metric response {oidDict} dictionary and extract device metric based on oidConfig
     """
     if len(oidDict) != 0:
-        systemMetric = deviceSysMetric(oidDict, oidConfig)
-        systemUptime = deviceSysUptime(oidDict, oidConfig)
-        interfaceMetric = deviceInterfaceMetric(oidDict, oidConfig)
-        return systemMetric, systemUptime, interfaceMetric
+        deviceMetricDict = {}
+        deviceMetricDict["sysMetric"] = deviceSysMetric(oidDict, oidConfig)
+        deviceMetricDict["sysUpTime"] = deviceSysUptime(oidDict, oidConfig)
+        deviceMetricDict["ifStats"] = deviceInterfaceMetric(oidDict, oidConfig)
+
+        return deviceMetricDict
     else:
-        return None, None, None
+        return None

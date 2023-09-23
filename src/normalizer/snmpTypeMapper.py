@@ -16,7 +16,7 @@ license="refer LICENSE"
 
 from datetime import timedelta
 from ipaddress import ip_address
-from src.lib.printDecorator import *
+from src.libCommon.printDecorator import *
 import codecs
 
 
@@ -58,11 +58,12 @@ def convertType(snmpValue, snmpType):
             case "TimeTicks":
                 """Description: Represents an unsigned integer which represents the time, modulo 232 (4294967296 dec), in hundredths of a second between two epochs."""
                 # printDebug(str(snmpType),str(snmpValue), timedelta(seconds=int(snmpValue)/100))
-                return timedelta(seconds=int(snmpValue) / 100)
+                return snmpValue
+                # return timedelta(seconds=int(snmpValue) / 100)
 
             case "OctetString":
                 """Description: Arbitrary binary or textual data, typically limited to 255 characters in length."""
-                return snmpValue.encode("utf-8")
+                return snmpValue
 
             case "ObjectIdentifier":
                 """Description: OID (Object Identifier) is the designation for a numeric identifier that unambiguously identifies each value in SNMP."""

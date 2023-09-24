@@ -28,3 +28,61 @@ sudo apt install python3-venv
 source setupExecEnv.sh
 ```
 
+# Cloning the Code repo:
+
+```console
+git clone https://github.com/ganeshiva/deviceAnalytics.git
+# or
+# Download with out git 
+wget https://github.com/ganeshiva/deviceAnalytics/archive/refs/heads/main.zip -O deviceAnalytics.zip
+unzip deviceAnalytics.zip
+```
+
+# Installing Code dependencies:
+
+cd deviceAnalytics
+source ./setupExecEnv.sh
+
+
+# Steps to Create 'deviceAnalytics' Service:
+
+Create a new systemd config file 
+```console
+sudo nano /lib/systemd/system/deviceAnalytics.service
+```
+
+### Content of "/lib/systemd/system/deviceAnalytics.service"
+
+change path to suite your folder
+
+```console
+
+[Unit]
+ Description=DeviceAnalytics 
+ After=multi-user.target
+
+[Service]
+ Type=idle
+ WorkingDirectory=/home/user/deviceAnalytics/
+ ExecStart=/bin/bash -c  '/home/user/deviceAnalytics/start.sh'
+ ExecStop=/bin/kill -s SIGTERM $MAINPID
+ 
+[Install]
+ WantedBy=multi-user.target
+
+```
+
+### Enable deviceAnalytics service
+```console
+sudo systemctl daemon-reload
+sudo systemctl enable deviceAnalytics.service
+```
+
+
+### Check deviceAnalytics service status 
+```console
+sudo systemctl daemon-reload
+sudo systemctl status deviceAnalytics
+
+
+```

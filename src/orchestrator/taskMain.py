@@ -104,13 +104,16 @@ def initDataCollection(configFile):
     parallelTask, parallelTaskTimeout = readParralismConfig(configFile)
     for devConfig in devicesConfig.items():
         collectAndStoreDeviceSysParam(devConfig)
+    iterationCount = 1
     while True:
+        printInfo("🔄️ Iteration Counter: " + str(iterationCount))
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=parallelTask
         ) as executor:
             executor.map(
                 collectAndStoreTask, devicesConfig.items(), timeout=parallelTaskTimeout
             )
+        iterationCount += 1
 
 
 def main():

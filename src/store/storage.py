@@ -123,7 +123,7 @@ def httpPostToStorage(deviceId, url, payload):
             printSuccess(
                 "✅ "
                 + deviceId
-                + ": Pushed to Store , Payload Length: "
+                + ": Metric pushed to Store , Payload Length: "
                 + str(len(payload))
             )
         else:

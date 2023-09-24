@@ -19,4 +19,3 @@ scriptCode="src/main.py"
 configFile="config/main.yaml"
 
 python3 ${scriptCode} ${configFile}
-echo -e "Program ended!!"

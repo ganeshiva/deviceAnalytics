@@ -42,9 +42,9 @@ ExecStop=/bin/kill -s SIGTERM $MAINPID
 [Install]
 WantedBy=multi-user.target
 
-Set the file limits for the service:
-mkdir /etc/systemd/system/victoriametrics.service.d
-In this folder create a file ulimit.conf with the following:
+#Set the file limits for the service:
+#mkdir /etc/systemd/system/victoriametrics.service.d
+#In this folder create a file ulimit.conf with the following:
 
 [Service]
 LimitNOFILE=32000

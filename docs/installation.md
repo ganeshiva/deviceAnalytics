@@ -59,10 +59,14 @@ sudo nano /lib/systemd/system/deviceAnalytics.service
 
 [Unit]
  Description=DeviceAnalytics 
- After=multi-user.target
+ After=network.target victoriametrics.service
 
 [Service]
- Type=idle
+ Type=simple
+ StartLimitBurst=5
+ StartLimitInterval=0
+ Restart=on-failure
+ RestartSec=5
  WorkingDirectory=/home/user/deviceAnalytics/
  ExecStart=/bin/bash -c  '/home/user/deviceAnalytics/start.sh'
  ExecStop=/bin/kill -s SIGTERM $MAINPID

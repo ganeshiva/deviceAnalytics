@@ -26,7 +26,11 @@ if enableLog == True:
             )
         )
         logging.basicConfig(
-            handlers=[logging.handlers.RotatingFileHandler(logFileName, maxBytes=1000000, backupCount=10)],
+            handlers=[
+                logging.handlers.RotatingFileHandler(
+                    logFileName, maxBytes=1000000, backupCount=10
+                )
+            ],
             format=loggerMessageFormat,
             level=logging.INFO,
             datefmt=loggerDateFormat,

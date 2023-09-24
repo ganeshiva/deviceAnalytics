@@ -8,7 +8,7 @@ author=Ganeshiva
 created=20230917
 updated=20230924
 cmdLine="python3 <thisScriptName> <configFile>"
-dependancy="refer requirements.txt"
+dependency="refer requirements.txt"
 repository="refer repository.txt"
 license="refer LICENSE"
 #################################################################
@@ -63,9 +63,9 @@ def collectAndStoreDeviceSysParam(deviceConfig):
     )
     timestamp = datetime.now().timestamp() * 1000
     response = crawlDevice(deviceConfig)
-    sysResponse = response["sysMetric"]
 
     if response != None:
+        sysResponse = response["sysMetric"]
         storageConfig = readYamlConfig(deviceConfig[1]["storage"])
         postSysData(timestamp, deviceId, sysResponse, storageConfig)
 
@@ -98,22 +98,25 @@ def collectAndStoreTask(deviceConfig):
 
 def initDataCollection(configFile):
     """
-    Crawles Each Device data based on the input ConfigFile
+    Crawls Each Device data based on the input ConfigFile
     """
     devicesConfig = readDeviceConfig(configFile)
-    parallelTask, parallelTaskTimeout = readParralismConfig(configFile)
-    for devConfig in devicesConfig.items():
-        collectAndStoreDeviceSysParam(devConfig)
-    iterationCount = 1
-    while True:
-        printInfo("🔄️ Iteration Counter: " + str(iterationCount))
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=parallelTask
-        ) as executor:
-            executor.map(
-                collectAndStoreTask, devicesConfig.items(), timeout=parallelTaskTimeout
-            )
-        iterationCount += 1
+    if devicesConfig != None:
+        parallelTask, parallelTaskTimeout = readParralismConfig(configFile)
+        for devConfig in devicesConfig.items():
+            collectAndStoreDeviceSysParam(devConfig)
+        iterationCount = 1
+        while True:
+            printInfo("🔄️ Iteration Counter: " + str(iterationCount))
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=parallelTask
+            ) as executor:
+                executor.map(
+                    collectAndStoreTask,
+                    devicesConfig.items(),
+                    timeout=parallelTaskTimeout,
+                )
+            iterationCount += 1
 
 
 def main():

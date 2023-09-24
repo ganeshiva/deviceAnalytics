@@ -131,9 +131,9 @@ def httpPostToStorage(deviceId, url, payload):
             printError("Error Response: " + str(r.json()))
     except Exception as e:
         printFailure(
-            "❌ Unable to Post device : "
+            "❌ "
             + str(deviceId)
-            + " data to storage, Exception: "
+            + ": Unable to Post data to storage, Exception: "
             + str(e)
         )
 
@@ -150,7 +150,9 @@ def postSysData(timestamp, deviceId, dataDict, storageConfig):
             httpPostToStorage(deviceId, url, payload)
         except Exception as e:
             printError(
-                "Unable to Process for Storage : "
+                "❌ "
+                + str(deviceId)
+                + ": Unable to Process for Storage : "
                 + str(storageConfig)
                 + ", Exception: "
                 + str(e)

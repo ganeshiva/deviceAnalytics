@@ -83,6 +83,4 @@ sudo systemctl enable deviceAnalytics.service
 ```console
 sudo systemctl daemon-reload
 sudo systemctl status deviceAnalytics
-
-
 ```

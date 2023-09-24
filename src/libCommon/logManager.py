@@ -1,5 +1,6 @@
 import datetime
 import logging
+import logging.handlers
 import os
 import inspect
 import sys
@@ -25,10 +26,9 @@ if enableLog == True:
             )
         )
         logging.basicConfig(
-            filename=logFileName,
-            filemode="a",
+            handlers=[logging.handlers.RotatingFileHandler(logFileName, maxBytes=1000000, backupCount=10)],
             format=loggerMessageFormat,
-            level=logging.DEBUG,
+            level=logging.INFO,
             datefmt=loggerDateFormat,
         )
         logging.info("Logging Initiated Successfully: " + str(logFileName))

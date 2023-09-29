@@ -24,7 +24,7 @@ import os
 
 def crawlDevice(deviceConfig):
     """
-    Crawles Device data based on the input deviceParameter
+    Crawls Device data based on the input deviceParameter
     """
     try:
         deviceKey, deviceParameter = deviceConfig[0], deviceConfig[1]
@@ -36,7 +36,7 @@ def crawlDevice(deviceConfig):
             printInfo("🚶 {}: Performing SNMP Walk".format(deviceKey))
             snmpWalkResponse, timeElapsed = snmpWalk(hostname, snmpConfig)
             printInfo(
-                "✅ {}: SNMP Walk responded: {} oids, took {} (s)".format(
+                "✅ {}: SNMP Walk responded: {} OIDS, took {} (s)".format(
                     deviceKey, len(snmpWalkResponse), timeElapsed
                 )
             )
@@ -44,7 +44,7 @@ def crawlDevice(deviceConfig):
 
     except Exception as e:
         printFailure(
-            "Unable to Crawl Device: " + str(deviceKey) + ", Exception: " + str(e)
+            "❌ {}: Failed Crawling, Exception: ".format(str(deviceKey), str(e))
         )
         return None
 

@@ -8,7 +8,7 @@ author=Ganeshiva
 created=20230917
 updated=20230924
 cmdLine="python3 <thisScriptName> <configFile>"
-dependancy="refer requirements.txt"
+dependency="refer requirements.txt"
 repository="refer repository.txt"
 license="refer LICENSE"
 #################################################################
@@ -181,10 +181,9 @@ def postData(timestamp, deviceId, dataDict, storageConfig):
             httpPostToStorage(deviceId, url, payload)
         except Exception as e:
             printError(
-                "Unable to Process for Storage : "
-                + str(storageConfig)
-                + ", Exception: "
-                + str(e)
+                "❌ {}: Unable to Process for Storage: {} , Exception: {}".format(
+                    str(deviceId), str(storageConfig), str(e)
+                )
             )
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

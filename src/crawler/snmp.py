@@ -8,7 +8,7 @@ author=Ganeshiva
 created=20230820
 updated=20230910
 cmdLine="python3 <thisScriptName> <configFile>"
-dependancy="refer requirements.txt"
+dependency="refer requirements.txt"
 repository="refer repository.txt"
 license="refer LICENSE"
 #################################################################
@@ -54,7 +54,12 @@ def extractValue(varBindTable):
         value = valueArray.prettyPrint()
         valueType = valueArray.prettyPrintType().split(" -> ")[1]
     except Exception as e:
-        printError("Unable to Process: " + str(varBindTable) + ", Exception: " + str(e))
+        printError(
+            "❌ Unable to parse SNMP response: "
+            + str(varBindTable)
+            + ", Exception: "
+            + str(e)
+        )
         return None
 
     normalizedValue = convertType(value, valueType)

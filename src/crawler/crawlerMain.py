@@ -8,7 +8,7 @@ author=Ganeshiva
 created=20230820
 updated=20230903
 cmdLine="python3 <thisScriptName> <configFile>"
-dependancy="refer requirements.txt"
+dependency="refer requirements.txt"
 repository="refer repository.txt"
 license="refer LICENSE"
 #################################################################
